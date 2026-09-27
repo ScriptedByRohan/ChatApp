@@ -1,0 +1,18 @@
+Features:
+
+real time communication between multiple users without the need for page reloads
+sending and receiving msg in real time, instantly displaying msg across all connected clients
+Broadcasting msg to all clients in a chat room 
+customize for both the username and the message body
+a fully functional system where users can see message as they are types and sent in real time 
+
+Approach:
+
+Defines the implementation strategy for enabiling real time chat functionality
+using socket.io and node.js
+
+-   real time communication: use socket.io to establish bidirectional communication between client and server
+-   server setup: configure an express.js server to handle communication and serve the client interface
+-   message handling: emit and listen for event to send and receive message between clents via the server
+-   UI updates: dynamically updates the frontend upon receiving the new msg without page reloading
+-   multiuser support: utilize Broadcasting to deliver message at all connected client in real time
