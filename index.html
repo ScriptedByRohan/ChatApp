@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>Let's Chat</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="h-[100dvh] bg-slate-100 overflow-hidden">
+    <!-- Header -->
+    <header
+      class="h-[70px] sm:h-[80px] bg-blue-900 text-white flex flex-col justify-center px-4 sm:px-6 shadow-md"
+    >
+      <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">Let's Chat</h1>
+
+      <p class="text-xs sm:text-sm text-blue-200">Chat App Using Socket.IO</p>
+    </header>
+
+    <!-- Main -->
+    <main
+      class="h-[calc(100dvh-70px)] sm:h-[calc(100dvh-80px)] flex flex-col max-w-5xl mx-auto w-full"
+    >
+      <!-- Messages -->
+      <div
+        id="messageArea"
+        class="flex-1 overflow-y-auto px-3 py-4 sm:px-5 md:px-8 space-y-1"
+      >
+        <!-- Welcome message -->
+        <div class="flex justify-center">
+          <p
+            class="bg-white text-gray-400 text-xs sm:text-sm px-4 py-2 rounded-full shadow-sm"
+          >
+            Start a conversation 👋
+          </p>
+        </div>
+      </div>
+
+      <!-- Input Section -->
+      <div
+        class="bg-white border-t border-gray-200 p-3 sm:p-4 shadow-[0_-3px_12px_rgba(0,0,0,0.06)]"
+      >
+        <form id="form" class="max-w-4xl mx-auto">
+          <!-- Name -->
+          <input
+            class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 mb-2 sm:hidden"
+            type="text"
+            placeholder="Your name"
+            id="mynameMobile"
+            autocomplete="off"
+          />
+
+          <!-- Desktop / Tablet -->
+          <div class="hidden sm:flex gap-2">
+            <input
+              class="w-32 md:w-40 border border-gray-300 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              type="text"
+              placeholder="Your name"
+              id="myname"
+              autocomplete="off"
+            />
+
+            <input
+              class="flex-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              type="text"
+              placeholder="Type a message..."
+              id="message"
+              autocomplete="off"
+            />
+
+            <button
+              type="submit"
+              class="bg-blue-900 hover:bg-blue-800 active:bg-blue-950 text-white px-5 md:px-6 rounded-xl font-semibold transition duration-200"
+            >
+              Send
+            </button>
+          </div>
+
+          <!-- Mobile -->
+          <div class="flex sm:hidden gap-2">
+            <input
+              class="flex-1 min-w-0 border border-gray-300 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              type="text"
+              placeholder="Type a message..."
+              id="messageMobile"
+              autocomplete="off"
+            />
+
+            <button
+              type="submit"
+              class="w-12 bg-blue-900 active:bg-blue-950 text-white rounded-xl font-semibold flex items-center justify-center text-lg"
+              aria-label="Send message"
+            >
+              ➤
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <!-- Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      const socket = io();
+
+      const form = document.getElementById("form");
+
+      const myname = document.getElementById("myname");
+      const message = document.getElementById("message");
+
+      const mynameMobile = document.getElementById("mynameMobile");
+      const messageMobile = document.getElementById("messageMobile");
+
+      const messageArea = document.getElementById("messageArea");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const isMobile = window.innerWidth < 640;
+
+        const username = isMobile
+          ? mynameMobile.value.trim()
+          : myname.value.trim();
+
+        const chatMessage = isMobile
+          ? messageMobile.value.trim()
+          : message.value.trim();
+
+        if (!username || !chatMessage) {
+          return;
+        }
+
+        socket.emit("send name", username);
+        socket.emit("send message", chatMessage);
+
+        if (isMobile) {
+          messageMobile.value = "";
+          messageMobile.focus();
+        } else {
+          message.value = "";
+          message.focus();
+        }
+      });
+
+      socket.on("send name", (username) => {
+        const name = document.createElement("p");
+
+        name.className = "text-xs font-semibold text-blue-700 mt-3 mb-1 px-1";
+
+        name.textContent = username;
+
+        messageArea.appendChild(name);
+
+        messageArea.scrollTop = messageArea.scrollHeight;
+      });
+
+      socket.on("send message", (chat) => {
+        const chatContent = document.createElement("div");
+
+        chatContent.className =
+          "bg-white border border-gray-200 shadow-sm rounded-2xl rounded-tl-sm px-3 sm:px-4 py-2 w-fit max-w-[85%] sm:max-w-[75%] text-sm sm:text-base text-gray-800 break-words";
+
+        chatContent.textContent = chat;
+
+        messageArea.appendChild(chatContent);
+
+        messageArea.scrollTop = messageArea.scrollHeight;
+      });
+    </script>
+  </body>
+</html>
